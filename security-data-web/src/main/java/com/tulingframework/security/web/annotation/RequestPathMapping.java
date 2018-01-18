@@ -1,10 +1,12 @@
 package com.tulingframework.security.web.annotation;
 
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wan on 15/01/2018.
@@ -22,7 +24,20 @@ public class RequestPathMapping extends HashMap<String, HandlerMethod> {
     }
 
     public HandlerMethod put(RequestMappingInfo requestMappingInfo, HandlerMethod value) {
-        return super.put(requestMappingInfo.toString(), value);
+        Assert.notNull(requestMappingInfo, "加密初始化失败");
+        Set<RequestMethod> methods = requestMappingInfo.getMethodsCondition().getMethods();
+        if (CollectionUtils.isEmpty(methods)) {
+            methods = new HashSet<>(Arrays.asList(RequestMethod.values()));
+        }
+        if (!CollectionUtils.isEmpty(requestMappingInfo.getPatternsCondition().getPatterns())) {
+            for (String path : requestMappingInfo.getPatternsCondition().getPatterns()) {
+                for (RequestMethod method : methods) {
+                    put(String.format(REQUEST_INFO, path, method.name()), value);
+                }
+            }
+            return value;
+        }
+        return null;
     }
 
     public RequestPathMapping putAllFrom(Map<RequestMappingInfo, HandlerMethod> m) {

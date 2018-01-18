@@ -5,7 +5,7 @@
 
 	<groupId>com.tulingframework</groupId>
 	<artifactId>security-data-web</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.7</version>
 	<packaging>jar</packaging>
 
 	<name>security-data-web</name>
@@ -129,7 +129,7 @@
 
 	<distributionManagement>
 		<repository>
-			<id>releases</id>
+			<id>zhengjiao-nexus-release</id>
 			<name>Internal Releases</name>
 			<url>http://mvn.zhengjiao.org/content/repositories/releases</url>
 		</repository>

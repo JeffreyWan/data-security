@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface RequestSecurityOperator {
 
-    ServletRequestWrapper createParameterRequestWrapper(HttpServletRequest request);
+    DecryptServletRequestWrapper createParameterRequestWrapper(HttpServletRequest request);
 
     MappingJackson2HttpMessageConverter createMessageConverter(HttpServletRequest request);
 

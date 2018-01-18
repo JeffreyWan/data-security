@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
 import org.zj.framework.exceptions.AbstractException;
+import org.zj.framework.exceptions.NormalException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -48,7 +49,7 @@ public class DataSecurityFilter extends OncePerRequestFilter implements Security
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String path = new UrlPathHelper().getRequestUri(request);
+        String path = new UrlPathHelper().getOriginatingServletPath(request);
         String method = request.getMethod().toUpperCase();
         if (!pathMapping.containsCompositeKey(path, method)) {
             chain.doFilter(request, response);
@@ -65,7 +66,7 @@ public class DataSecurityFilter extends OncePerRequestFilter implements Security
                 //TODO has requestBody in method
                 chain.doFilter(request, response);
             }
-        } catch (AbstractException e) {
+        } catch (RuntimeException e) {
             writeErrorResponse(response, e);
         }
     }
@@ -111,10 +112,15 @@ public class DataSecurityFilter extends OncePerRequestFilter implements Security
         return SecretType.typeOf(request.getHeader(TYPE));
     }
 
-    private void writeErrorResponse(ServletResponse response, AbstractException e) throws IOException {
+    private void writeErrorResponse(ServletResponse response, RuntimeException e) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         PrintWriter out = response.getWriter();
-        out.print(new ObjectMapper().writeValueAsString(e));
+        ObjectMapper mapper = new ObjectMapper();
+        if (e instanceof AbstractException) {
+            out.print(mapper.writeValueAsString(e));
+        } else {
+            out.print(mapper.writeValueAsString(new NormalException(e.getMessage())));
+        }
         out.flush();
         out.close();
     }
